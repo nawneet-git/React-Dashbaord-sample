@@ -10,7 +10,7 @@ import PostAnalysis from './PostAnalysis';
 import LatestProducts from './LatestProducts';
 import Sales from './CommentCountBar';
 import LineChart from '../../components/LineChart';
-import TrafficByDevice from './TrafficByDevice';
+import FacebookLikePercent from './FacebookLikePercent';
 
 import moment from 'moment';
 import InputLabel from '@material-ui/core/InputLabel';
@@ -18,12 +18,6 @@ import FormHelperText from '@material-ui/core/FormHelperText';
 import NativeSelect from '@material-ui/core/NativeSelect';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
-
-
-import TasksProgress from './TasksProgress';
-import TotalCustomers from './TotalCustomers';
-import TotalProfit from './TotalProfit';
-import PieChart from '../../components/PieChart';
 
 import AxiosClientProvider from '../../services/postDataService';
 
@@ -44,27 +38,27 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-function DistinctRecords(MYJSON, prop) {
-  return MYJSON.filter((obj, pos, arr) => {
+function DistinctRecords(ListData, prop) {
+  return ListData.filter((obj, pos, arr) => {
     return arr.map(mapObj => mapObj[prop]).indexOf(obj[prop]) === pos;
   })
 }
 
-function DistinctCommentRecords(MYJSON, prop) {
-  let resultsList = [...MYJSON.reduce((r, { username }) => {
-    const cat = r.get(username)
-    cat ? cat.count++ : r.set(username, { username, count: 1 })
+function DistinctCommentRecords(ListData, prop) {
+  let resultsList = [...ListData.reduce((r, { username }) => {
+    const itemObj = r.get(username)
+    itemObj ? itemObj.count++ : r.set(username, { username, count: 1 })
     return r
   }, new Map).values()
   ]
   return resultsList;
 }
 
-function DailyCommentRecords(MYJSON, prop) {
-  let resultsList = [...MYJSON.reduce((r, { created_datetime }) => {
+function DailyCommentRecords(listData, prop) {
+  let resultsList = [...listData.reduce((r, { created_datetime }) => {
     let comment_date = moment(created_datetime).format('DD-MMM-YYYY')
-    const cat = r.get(comment_date)
-    cat ? cat.count++ : r.set(comment_date, { comment_date, count: 1 })
+    const itemObj = r.get(comment_date)
+    itemObj ? itemObj.count++ : r.set(comment_date, { comment_date, count: 1 })
     return r
   }, new Map).values()
   ]
@@ -79,6 +73,17 @@ function DailyCommentRecords(MYJSON, prop) {
   };
 }
 
+function PostsLikes(MYJSON, prop) {
+  let resultsList = [...MYJSON.reduce((r, { username, post_likes }) => {
+    const itemObj = r.get(username);
+    itemObj ? itemObj.post_likes = (Number(itemObj.post_likes) + Number(post_likes)) : r.set(username, { username, post_likes: Number(post_likes) })
+    return r
+  }, new Map).values()
+  ]
+
+  return resultsList;
+}
+
 const Dashboard = () => {
   const classes = useStyles();
 
@@ -87,6 +92,7 @@ const Dashboard = () => {
   const [facebookPostArray, setFacebookPostArray] = useState([]);
   const [facebookCommentCount, setFacebookCommentCount] = useState([]);
   const [facebookDailyCommentList, setFacebookDailyCommentList] = useState({ resultsList: [], labels: [] });
+  const [facebookPostLike, setFacebookPostLike] = useState([]);
   const [facebookPostComment, setFacebookPostComment] = useState([]);
   const [usernameList, setUsernameList] = useState([]);
   const [currentUser, setCurrentUser] = useState([]);
@@ -95,7 +101,10 @@ const Dashboard = () => {
     apiClient.getFacebookPosts(1, (data) => {
       if (data.length != 0) {
         setFacebookPostArray(data);
-        setUsernameList(DistinctRecords(data, 'username'))
+        setUsernameList(DistinctRecords(data, 'username'));
+
+        let postLikes = PostsLikes(data, 'username');
+        setFacebookPostLike(postLikes);
 
       }
     })
@@ -109,7 +118,8 @@ const Dashboard = () => {
 
       // finding out daily comment
       let dailyComment = DailyCommentRecords(data, 'username');
-      setFacebookDailyCommentList(dailyComment)
+      setFacebookDailyCommentList(dailyComment);
+
     })
   }
 
@@ -200,7 +210,7 @@ const Dashboard = () => {
             xl={3}
             xs={12}
           >
-            <TrafficByDevice />
+            <FacebookLikePercent itemData={facebookPostLike} />
           </Grid>
           <Grid
             item

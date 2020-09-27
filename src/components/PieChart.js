@@ -5,40 +5,19 @@ import {
     PieSeries,
 } from '@devexpress/dx-react-chart-material-ui';
 
-
-const data = [
-    { country: 'Russia', area: 12 },
-    { country: 'Canada', area: 7 },
-    { country: 'USA', area: 7 },
-    { country: 'China', area: 7 },
-    { country: 'Brazil', area: 6 },
-    { country: 'Australia', area: 5 },
-    { country: 'India', area: 2 },
-    { country: 'Others', area: 55 },
-];
-export default class PieChart extends React.PureComponent {
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            data,
-        };
-    }
-
-    render() {
-        const { data: chartData } = this.state;
-
-        return (
-            <div>
-                <Chart 
-                    data={chartData}
-                >
-                    <PieSeries
-                        valueField="area"
-                        argumentField="country"
-                    />
-                </Chart>
-            </div>
-        );
-    }
+const PieChart = ({ className, itemData, ...rest }) => {
+    return (
+        <div>
+            <Chart
+                data={itemData}
+            >
+                <PieSeries
+                    valueField="post_likes"
+                    argumentField="username"
+                />
+            </Chart>
+        </div>
+    );
 }
+
+export default PieChart;
