@@ -3,6 +3,7 @@ import clsx from 'clsx';
 import moment from 'moment';
 import { v4 as uuid } from 'uuid';
 import PerfectScrollbar from 'react-perfect-scrollbar';
+import TableContainer from "@material-ui/core/TableContainer";
 import PropTypes from 'prop-types';
 import {
   Box,
@@ -22,81 +23,21 @@ import {
 } from '@material-ui/core';
 import ArrowRightIcon from '@material-ui/icons/ArrowRight';
 
-const data = [
-  {
-    id: uuid(),
-    ref: 'CDD1049',
-    amount: 30.5,
-    customer: {
-      name: 'Ekaterina Tankova'
-    },
-    createdAt: 1555016400000,
-    status: 'pending'
-  },
-  {
-    id: uuid(),
-    ref: 'CDD1048',
-    amount: 25.1,
-    customer: {
-      name: 'Cao Yu'
-    },
-    createdAt: 1555016400000,
-    status: 'delivered'
-  },
-  {
-    id: uuid(),
-    ref: 'CDD1047',
-    amount: 10.99,
-    customer: {
-      name: 'Alexa Richardson'
-    },
-    createdAt: 1554930000000,
-    status: 'refunded'
-  },
-  {
-    id: uuid(),
-    ref: 'CDD1046',
-    amount: 96.43,
-    customer: {
-      name: 'Anje Keizer'
-    },
-    createdAt: 1554757200000,
-    status: 'pending'
-  },
-  {
-    id: uuid(),
-    ref: 'CDD1045',
-    amount: 32.54,
-    customer: {
-      name: 'Clarke Gillebert'
-    },
-    createdAt: 1554670800000,
-    status: 'delivered'
-  },
-  {
-    id: uuid(),
-    ref: 'CDD1044',
-    amount: 16.76,
-    customer: {
-      name: 'Adam Denisov'
-    },
-    createdAt: 1554670800000,
-    status: 'delivered'
-  }
-];
-
 const useStyles = makeStyles(() => ({
   root: {},
   actions: {
     justifyContent: 'flex-end'
-  }
+  },
+  container: {
+    minHeight: 400,
+    maxHeight: 400,
+  },
 }));
+
+
 
 const PostAnalysis = ({ className, itemData, ...rest }) => {
   const classes = useStyles();
-  const [orders] = useState(data);
-  const [itemsData, setItemsData] = React.useState(itemData);
-  console.log("Items data : ", itemsData)
 
   return (
     <Card
@@ -106,60 +47,52 @@ const PostAnalysis = ({ className, itemData, ...rest }) => {
       <CardHeader title="Latest Orders" />
       <Divider />
       <PerfectScrollbar>
-        <Box minWidth={800}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>
-                  Order Ref
-                </TableCell>
-                <TableCell>
-                  Customer
-                </TableCell>
-                <TableCell sortDirection="desc">
-                  <Tooltip
-                    enterDelay={300}
-                    title="Sort"
-                  >
-                    <TableSortLabel
-                      active
-                      direction="desc"
-                    >
-                      Date
-                    </TableSortLabel>
-                  </Tooltip>
-                </TableCell>
-                <TableCell>
-                  Status
-                </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {itemsData.map((items) => (
-                <TableRow
-                  hover
-                  key={items._id}
-                >
+        <Box minHeight={400} >
+          <TableContainer className={classes.container}>
+            <Table stickyHeader aria-label="sticky table">
+              <TableHead>
+                <TableRow>
                   <TableCell>
-                    {items.username}
-                  </TableCell>
+                    UserName
+                </TableCell>
                   <TableCell>
-                    {items.post}
-                  </TableCell>
+                    Post
+                </TableCell>
+                  <TableCell sortDirection="desc">
+                    Share Count
+                </TableCell>
                   <TableCell>
-                    {items.share_count}
-                  </TableCell>
-                  <TableCell>
-                    <Chip
-                      color="primary"
-                      label={items.post_likes}
-                      size="small"
-                    />
-                  </TableCell>
+                    Post Like
+                </TableCell>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHead>
+              <TableBody>
+                {itemData.map((items) => (
+                  <TableRow
+                    hover
+                    key={items._id}
+                  >
+                    <TableCell>
+                      {items.username}
+                    </TableCell>
+                    <TableCell>
+                      {items.post}
+                    </TableCell>
+                    <TableCell>
+                      {items.share_count}
+                    </TableCell>
+                    <TableCell>
+                      <Chip
+                        color="primary"
+                        label={items.post_likes}
+                        size="small"
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
         </Box>
       </PerfectScrollbar>
       <Box
@@ -167,14 +100,6 @@ const PostAnalysis = ({ className, itemData, ...rest }) => {
         justifyContent="flex-end"
         p={2}
       >
-        <Button
-          color="primary"
-          endIcon={<ArrowRightIcon />}
-          size="small"
-          variant="text"
-        >
-          View all
-        </Button>
       </Box>
     </Card>
   );

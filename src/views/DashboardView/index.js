@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Container,
   Grid,
@@ -8,11 +8,11 @@ import Page from 'src/components/Page';
 import Budget from './Budget';
 import PostAnalysis from './PostAnalysis';
 import LatestProducts from './LatestProducts';
-import Sales from './Sales';
+import Sales from './CommentCountBar';
 import LineChart from '../../components/LineChart';
 import TrafficByDevice from './TrafficByDevice';
 
-
+import moment from 'moment';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import NativeSelect from '@material-ui/core/NativeSelect';
@@ -43,31 +43,73 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+
+function DistinctRecords(MYJSON, prop) {
+  return MYJSON.filter((obj, pos, arr) => {
+    return arr.map(mapObj => mapObj[prop]).indexOf(obj[prop]) === pos;
+  })
+}
+
+function DistinctCommentRecords(MYJSON, prop) {
+  let resultsList = [...MYJSON.reduce((r, { username }) => {
+    const cat = r.get(username)
+    cat ? cat.count++ : r.set(username, { username, count: 1 })
+    return r
+  }, new Map).values()
+  ]
+  return resultsList;
+}
+
+function DailyCommentRecords(MYJSON, prop) {
+  let resultsList = [...MYJSON.reduce((r, { created_datetime }) => {
+    let comment_date = moment(created_datetime).format('DD-MMM-YYYY')
+    const cat = r.get(comment_date)
+    cat ? cat.count++ : r.set(comment_date, { comment_date, count: 1 })
+    return r
+  }, new Map).values()
+  ]
+
+  let labels = []
+  for (let items of resultsList) {
+    labels.push(items.comment_date);
+  }
+  return {
+    resultsList,
+    labels
+  };
+}
+
 const Dashboard = () => {
   const classes = useStyles();
 
   let apiClient = new AxiosClientProvider();
-  const [pageload, setPageLoad] = React.useState(false);
-  const [facebookPostArray, setFacebookPostArray] = React.useState([]);
-  const [facebookComment, setFacebookComment] = React.useState([]);
-  const [facebookPostComment, setFacebookPostComment] = React.useState([]);
-
+  const [pageload, setPageLoad] = useState(false);
+  const [facebookPostArray, setFacebookPostArray] = useState([]);
+  const [facebookCommentCount, setFacebookCommentCount] = useState([]);
+  const [facebookDailyCommentList, setFacebookDailyCommentList] = useState({ resultsList: [], labels: [] });
+  const [facebookPostComment, setFacebookPostComment] = useState([]);
+  const [usernameList, setUsernameList] = useState([]);
+  const [currentUser, setCurrentUser] = useState([]);
 
   const getFaceBookPostData = () => {
     apiClient.getFacebookPosts(1, (data) => {
-      console.log("Received data from facebook post : ", data);
       if (data.length != 0) {
-        setFacebookPostArray("Helo");
-        console.log("Received data from facebook post  2: ", data);
+        setFacebookPostArray(data);
+        setUsernameList(DistinctRecords(data, 'username'))
+
       }
-      console.log("Facebook post state : ", facebookPostArray)
     })
   }
 
   const getFaceBookComment = () => {
-    apiClient.getFacebookPostsCommment(1, (data) => {
-      setFacebookComment(data)
-      console.log("Received data from facebook post : ", data);
+    apiClient.getFacebookCommment(1, (data) => {
+      // finding comment count by user
+      let commentCount = DistinctCommentRecords(data, 'username');
+      setFacebookCommentCount(commentCount);
+
+      // finding out daily comment
+      let dailyComment = DailyCommentRecords(data, 'username');
+      setFacebookDailyCommentList(dailyComment)
     })
   }
 
@@ -79,17 +121,8 @@ const Dashboard = () => {
   }
 
   useEffect(() => {
-    // getFaceBookPostData()
-
-    apiClient.getFacebookPosts(1, (data) => {
-      console.log("Received data from facebook post : ", data);
-      if (data.length != 0) {
-        setFacebookPostArray(data);
-        console.log("Received data from facebook post  2: ", data);
-      }
-      console.log("Facebook post state : ", facebookPostArray)
-    })
-
+    getFaceBookPostData();
+    getFaceBookComment();
   }, []);
 
   // if(pageload == false){
@@ -98,8 +131,11 @@ const Dashboard = () => {
   // }
 
 
-  const onUserNameChange = () => {
-
+  const onUserNameChange = (event) => {
+    if (event.target.value && event.target.value != '') {
+      setCurrentUser(event.target.value);
+    }
+    debugger;
   }
 
   return (
@@ -127,12 +163,16 @@ const Dashboard = () => {
                 id: 'age-native-helper',
               }}
             >
-              <option aria-label="None" value="" />
-              <option value={10}>Ten</option>
-              <option value={20}>Twenty</option>
-              <option value={30}>Thirty</option>
+              <option aria-label="all" value="all" />
+              {
+                usernameList.map((item) => {
+                  return (
+                    <option key={item._id} value={item.username}>{item.username}</option>
+                  )
+                })
+              }
             </NativeSelect>
-            <FormHelperText>Some important helper text</FormHelperText>
+
           </Grid>
 
           <Grid
@@ -142,7 +182,7 @@ const Dashboard = () => {
             xl={12}
             xs={12}
           >
-            {/* <PostAnalysis itemData={facebookPostArray} /> */}
+            <PostAnalysis itemData={facebookPostArray} />
           </Grid>
           <Grid
             item
@@ -151,7 +191,7 @@ const Dashboard = () => {
             xl={9}
             xs={12}
           >
-            <Sales />
+            <Sales itemData={facebookCommentCount} />
           </Grid>
           <Grid
             item
@@ -169,7 +209,7 @@ const Dashboard = () => {
             xl={12}
             xs={12}
           >
-            <LineChart />
+            <LineChart itemData={facebookDailyCommentList.resultsList} itemLabel={facebookDailyCommentList.labels} />
           </Grid>
         </Grid>
       </Container>

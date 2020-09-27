@@ -1,6 +1,17 @@
 import * as React from 'react';
 import Paper from '@material-ui/core/Paper';
 import {
+    Box,
+    Button,
+    Card,
+    CardContent,
+    CardHeader,
+    Divider,
+    useTheme,
+    makeStyles,
+    colors
+} from '@material-ui/core';
+import {
     Chart,
     ArgumentAxis,
     ValueAxis,
@@ -73,45 +84,41 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
     <Title.Text {...props} className={classes.title} />
 ));
 
-class LineChart extends React.PureComponent {
-    constructor(props) {
-        super(props);
+const useStyles = makeStyles(() => ({
+    root: {},
+    chart: {
+        paddingRight: '20px',
+    },
+    title: {
+        whiteSpace: 'pre',
+    },
+}));
 
-        this.state = {
-            data,
-        };
-    }
+const DailyCommentLineBar = ({ className, itemData, ...rest }) => {
+    const classes = useStyles();
+    const theme = useTheme();
+    console.log(itemData);
+    return (
+        <Paper>
+            <Chart
+                data={itemData}
+                className={classes.chart}
+            >
+                <ArgumentAxis />
+                <ValueAxis />
+                <LineSeries
+                    valueField="count"
+                    argumentField="comment_date"
+                    barWidth={0.3}
+                    maxBarWidth={0.3}
 
-    render() {
-        const { data: chartData } = this.state;
-        const { classes } = this.props;
-
-        return (
-            <Paper>
-                <Chart
-                    data={chartData}
-                    className={classes.chart}
-                >
-                    <ArgumentAxis tickFormat={format} />
-                    <ValueAxis
-                        max={50}
-                        labelComponent={ValueLabel}
-                    />
-                    <LineSeries
-                        name="Military"
-                        valueField="military"
-                        argumentField="year"
-                    />
-                    <Legend position="bottom" rootComponent={Root} itemComponent={Item} labelComponent={Label} />
-                    <Title
-                        text={`Confidence in Institutions in American society ${'\n'}(Great deal)`}
-                        textComponent={TitleText}
-                    />
-                    <Animation />
-                </Chart>
-            </Paper>
-        );
-    }
+                />
+                <Animation />
+            </Chart>
+        </Paper>
+    );
 }
+//     }
+// }
 
-export default withStyles(demoStyles, { name: 'Demo' })(LineChart);
+export default withStyles(demoStyles, { name: 'Demo' })(DailyCommentLineBar);
