@@ -16,6 +16,7 @@ import {
 import LaptopMacIcon from '@material-ui/icons/LaptopMac';
 import PhoneIcon from '@material-ui/icons/Phone';
 import TabletIcon from '@material-ui/icons/Tablet';
+import PieChart from '../../components/PieChart';
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -96,46 +97,10 @@ const TrafficByDevice = ({ className, ...rest }) => {
       <Divider />
       <CardContent>
         <Box
-          height={300}
+          height={500}
           position="relative"
         >
-          <Doughnut
-            data={data}
-            options={options}
-          />
-        </Box>
-        <Box
-          display="flex"
-          justifyContent="center"
-          mt={2}
-        >
-          {devices.map(({
-            color,
-            icon: Icon,
-            title,
-            value
-          }) => (
-            <Box
-              key={title}
-              p={1}
-              textAlign="center"
-            >
-              <Icon color="action" />
-              <Typography
-                color="textPrimary"
-                variant="body1"
-              >
-                {title}
-              </Typography>
-              <Typography
-                style={{ color }}
-                variant="h2"
-              >
-                {value}
-                %
-              </Typography>
-            </Box>
-          ))}
+           <PieChart />
         </Box>
       </CardContent>
     </Card>

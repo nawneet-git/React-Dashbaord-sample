@@ -16,6 +16,8 @@ import {
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import ArrowRightIcon from '@material-ui/icons/ArrowRight';
 
+import BarChart from '../../components/BarChart';
+
 const useStyles = makeStyles(() => ({
   root: {}
 }));
@@ -115,30 +117,13 @@ const Sales = ({ className, ...rest }) => {
       <Divider />
       <CardContent>
         <Box
-          height={400}
+          height={500}
           position="relative"
         >
-          <Bar
-            data={data}
-            options={options}
-          />
+          <BarChart />
         </Box>
       </CardContent>
       <Divider />
-      <Box
-        display="flex"
-        justifyContent="flex-end"
-        p={2}
-      >
-        <Button
-          color="primary"
-          endIcon={<ArrowRightIcon />}
-          size="small"
-          variant="text"
-        >
-          Overview
-        </Button>
-      </Box>
     </Card>
   );
 };

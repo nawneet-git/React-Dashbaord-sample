@@ -92,9 +92,11 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
-const LatestOrders = ({ className, ...rest }) => {
+const PostAnalysis = ({ className, itemData, ...rest }) => {
   const classes = useStyles();
   const [orders] = useState(data);
+  const [itemsData, setItemsData] = React.useState(itemData);
+  console.log("Items data : ", itemsData)
 
   return (
     <Card
@@ -133,24 +135,24 @@ const LatestOrders = ({ className, ...rest }) => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {orders.map((order) => (
+              {itemsData.map((items) => (
                 <TableRow
                   hover
-                  key={order.id}
+                  key={items._id}
                 >
                   <TableCell>
-                    {order.ref}
+                    {items.username}
                   </TableCell>
                   <TableCell>
-                    {order.customer.name}
+                    {items.post}
                   </TableCell>
                   <TableCell>
-                    {moment(order.createdAt).format('DD/MM/YYYY')}
+                    {items.share_count}
                   </TableCell>
                   <TableCell>
                     <Chip
                       color="primary"
-                      label={order.status}
+                      label={items.post_likes}
                       size="small"
                     />
                   </TableCell>
@@ -178,8 +180,8 @@ const LatestOrders = ({ className, ...rest }) => {
   );
 };
 
-LatestOrders.propTypes = {
+PostAnalysis.propTypes = {
   className: PropTypes.string
 };
 
-export default LatestOrders;
+export default PostAnalysis;
